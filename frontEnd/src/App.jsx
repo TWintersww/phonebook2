@@ -28,6 +28,7 @@ const App = () => {
   //filter still works b/c
     //first render: db.json's content saved to notes state
     //added notes: also saved to notes state
+  //notesToShow changes with showAll boolean state change, which .map() in JSX below
   const notesToShow = showAll
     ? notes
     : notes.filter(note => note.important)
