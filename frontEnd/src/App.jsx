@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react'
 import Note from './components/Note'
 import axios from 'axios'
+import noteService from './services/notes'
 
 const App = () => {
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
 
-  //Now, addNote calls axios post to edit server (changing db.json)
+  //Now, addNote calls noteService.create() to edit server (changing db.json)
   //AND updates state by calling setNotes
   const addNote = (event) => {
     event.preventDefault()
@@ -17,30 +18,33 @@ const App = () => {
       important: Math.random() < 0.5,
     }
 
-    axios
-    //updates server
-    .post('http://localhost:3001/notes', noteObject)
-    .then(response => {
-      //updates note state for state-server synchronicity
-      setNotes(notes.concat(response.data))
-      setNewNote('')
-    })
+    noteService
+      .create(noteObject)
+      .then(returnedNote => {
+        setNotes(notes.concat(returnedNote))
+        setNewNote('')
+      })
   }
   const handleNoteChange = (event) => {
     setNewNote(event.target.value)
   }
   const toggleImportanceOf = (id) => {
-    const url = `http://localhost:3001/notes/${id}`
     const note = notes.find(n => n.id === id)
     //creates shallow copy except with changed field
     const changedNote = {...note, important: !note.important}
 
-    axios
-    //takes uniqueUrl(specific id) and changedNote as param
-      .put(url, changedNote)
-      .then(response => {
-        //setNotes in callback to maintain state-server synchronicity
-        setNotes(notes.map(n => n.id !== id ? n : response.data))
+    noteService
+      //.update() can take id from toggleImportanceOf prop
+      //we can format specific url in notes.js implementation (under the hood here)
+      .update(id, changedNote)
+      .then(returnedNote => {
+        setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+      })
+      .catch(error => {
+        alert(
+          `the note '${note.content}' was already deleted from server`
+        )
+        setNotes(notes.filter(n => n.id !== id))
       })
   }
 
@@ -52,15 +56,15 @@ const App = () => {
     ? notes
     : notes.filter(note => note.important)
 
-  //Effect hook sending get request which returns a promise.
-  //Then, setNotes based on response data
+  //Effect hook calling noteService.getAll() returning response.body(json's entire body)
+  //Then, setNotes based on returned data
   //[] second param means effect hook only runs on first render
   useEffect(() => {
-    //axios.get('url') returns promise object, which needs a callback
-    axios
-      .get('http://localhost:3001/notes')
-      .then(response => {
-        setNotes(response.data)
+    noteService
+      .getAll()
+      //returned is response.body, which includes entire db.json file
+      .then(initialNotes => {
+        setNotes(initialNotes)
       })
   }, [])
 
