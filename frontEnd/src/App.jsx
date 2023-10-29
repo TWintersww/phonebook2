@@ -18,8 +18,10 @@ const App = () => {
     }
 
     axios
+    //updates server
     .post('http://localhost:3001/notes', noteObject)
     .then(response => {
+      //updates note state for state-server synchronicity
       setNotes(notes.concat(response.data))
       setNewNote('')
     })
@@ -30,11 +32,14 @@ const App = () => {
   const toggleImportanceOf = (id) => {
     const url = `http://localhost:3001/notes/${id}`
     const note = notes.find(n => n.id === id)
+    //creates shallow copy except with changed field
     const changedNote = {...note, important: !note.important}
 
     axios
+    //takes uniqueUrl(specific id) and changedNote as param
       .put(url, changedNote)
       .then(response => {
+        //setNotes in callback to maintain state-server synchronicity
         setNotes(notes.map(n => n.id !== id ? n : response.data))
       })
   }

@@ -11,5 +11,6 @@ const Note = ({ note, toggleImportance }) => {
       </li>
     )
 }
+//toggleImportance button for each <Note />
 
 export default Note
