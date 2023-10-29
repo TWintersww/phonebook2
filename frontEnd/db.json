@@ -27,8 +27,13 @@
     },
     {
       "content": "hi",
-      "important": false,
+      "important": true,
       "id": 6
+    },
+    {
+      "content": "hi",
+      "important": true,
+      "id": 7
     }
   ]
 }

@@ -1,6 +1,7 @@
 //use State and Effect hooks
 import { useState, useEffect } from 'react'
 import Note from './components/Note'
+import Notification from './components/Notification'
 import axios from 'axios'
 import noteService from './services/notes'
 
@@ -8,6 +9,7 @@ const App = () => {
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   //Now, addNote calls noteService.create() to edit server (changing db.json)
   //AND updates state by calling setNotes
@@ -41,9 +43,14 @@ const App = () => {
         setNotes(notes.map(note => note.id !== id ? note : returnedNote))
       })
       .catch(error => {
-        alert(
-          `the note '${note.content}' was already deleted from server`
+        //setErrorMessage causes state change & causes re-render
+        //after 5 seconds, setErrorMessage back to null
+        setErrorMessage(
+          `Note '${note.content}' was already removed from server`
         )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
         setNotes(notes.filter(n => n.id !== id))
       })
   }
@@ -71,6 +78,7 @@ const App = () => {
   return (
     <div>
       <h1>Notes</h1>
+      <Notification message={errorMessage} />
       <div>
         <button onClick={() => setShowAll(!showAll)}>
           show {showAll ? 'important' : 'all'}
