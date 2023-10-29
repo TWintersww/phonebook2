@@ -1,12 +1,15 @@
-import { useState } from 'react'
+//use State and Effect hooks
+import { useState, useEffect } from 'react'
 import Note from './components/Note'
+import axios from 'axios'
 
-//takes in notes[] from main.jsx, imports Note component
-const App = (props) => {
-  const [notes, setNotes] = useState(props.notes)
+const App = () => {
+  const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
 
+  //Adding a note shows on page b/c change in notes state,
+  //But no change in json-server
   const addNote = (event) => {
     event.preventDefault()
     const noteObject = {
@@ -22,9 +25,24 @@ const App = (props) => {
     setNewNote(event.target.value)
   }
 
+  //filter still works b/c
+    //first render: db.json's content saved to notes state
+    //added notes: also saved to notes state
   const notesToShow = showAll
     ? notes
     : notes.filter(note => note.important)
+
+  //Effect hook sending get request which returns a promise.
+  //Then, setNotes based on response data
+  //[] second param means effect hook only runs on first render
+  useEffect(() => {
+    //axios.get('url') returns promise object, which needs a callback
+    axios
+      .get('http://localhost:3001/notes')
+      .then(response => {
+        setNotes(response.data)
+      })
+  }, [])
 
   return (
     <div>
