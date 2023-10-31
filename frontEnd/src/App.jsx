@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import Note from './components/Note'
 import Notification from './components/Notification'
 import axios from 'axios'
+
+//axios code that sends axios.get/post requests to backEnd
+//PASSES SPECIFIC URL AND/OR OBJECT
 import noteService from './services/notes'
 
 const App = () => {
